@@ -9,12 +9,11 @@ app.use(express.json());
 app.use("/api/auth", router);
 
 
-
 const port = 4100;
 connectDb().then(() => {
 
 app.listen(port, ()=>{
-    console.log(`Server is status : ${port}`);
+    console.log(`Server is status : ${port} `);
 });
 });
   
