@@ -16,8 +16,9 @@ const home = async (req, res) => {
 }
 
 
-
+// {____________________________________}
 //*-------- Registration Logic -----------------
+// {_______________________________________}
 
 const register = async (req, res, next) => {
    try {
@@ -51,7 +52,51 @@ const register = async (req, res, next) => {
          password: hash_password
       });
 
-      res.status(201).json({ msg: "User created successfully", userCreated })
+      res.status(201).json({ 
+         msg: "User created successfully",
+         // userCreated, 
+         token: await userCreated.generateAuthToken(),
+         userId: userCreated._id.toString(),
+   })
+   }
+   catch (error) {
+      res.status(500).send({ msg: "Internal server error" })
+   }
+}
+
+// {____________________________________}
+//*-------- User login Logic -----------------
+// {_______________________________________}
+
+const login = async (req, res, next) => 
+{
+   try {
+    
+      const { email, password } = req.body;
+      console.log(req.body);
+
+      const userExist = await User.findOne({ email });
+      console.log(userExist);
+      
+      if(!email || !password) {
+         return res.status(400).json({msg: "Please enter all fields"}
+         );
+      }
+
+
+      // const validPassword = await bcrypt.compare(password, userExist.password);
+      
+      const validPassword = await userExist.comparePassword(password);
+
+
+      if(!validPassword){
+         return res.status(400).json({msg: "Invalid credentials"});
+      }
+      const token = await userExist.generateAuthToken();
+      res.status(200).json({
+         msg: "User logged in successfully",
+         token,
+      })
    }
    catch (error) {
       res.status(500).send({ msg: "Internal server error" })
@@ -59,6 +104,4 @@ const register = async (req, res, next) => {
 }
 
 
-
-
-module.exports = { home, register };
+module.exports = { home, register, login };
